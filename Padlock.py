@@ -15,8 +15,8 @@ import os
 import sys
 
 # the two correct keys- USB stick ID or a 4-digit code
-correct_key = "ID ****:**** SanDisk Corp. Cruzer" # Hidden for uploading to GitHub!
-correct_passkey = "****" # hidden for uploading to GitHub!
+correct_key = "ID 0781:5530 SanDisk Corp. Cruzer"
+correct_passkey = "4198"
 
 unlocked = True
 VERBOSE = False
@@ -29,9 +29,9 @@ def attempt_unlock():
 		print "Lock: Searching USB bus for devices..."
 	
 	os.system("lsusb > usbs.txt")
-	usblist = open("usbs.txt", "r")
-	keys = usblist.readlines()
-	usblist.close()
+	with open("usbs.txt", "r") as usblist:
+		keys = usblist.readlines()
+	os.system("rm usbs.txt")
 	
 	for key in keys:
 		if correct_key in key:

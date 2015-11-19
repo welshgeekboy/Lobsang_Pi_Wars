@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# Lobsang.py: custom script gathering
+# Lobsang.py- custom script gathering
 # all of Lobsang's basic capabilities
-# into one big, easy-to-use library.
+# into one big,  easy-to-use library.
 #
 # Created Nov 2015 by Finley Watson.
 
@@ -12,7 +12,7 @@ import sys
 import serial as serial_lib
 import time
 import RPi.GPIO as GPIO
-import Oled as oled # So we can call Lobsang.oled.<etc>: it fits with the syntax of the other Lobsang classes.
+import Oled as oled
 
 duino_enable_pin = 4 # Pi output BCM pin to stop Duino doing anything. Duino enabled by default.
 gpio_access = True
@@ -26,8 +26,15 @@ try:
 	GPIO.setup(20, GPIO.IN)
 	GPIO.setup(21, GPIO.IN)
 except RuntimeError:
-	print "Lobsang: Please rerun with sudo prefix, access to GPIO denied."
+	print "Lobsang: Re-run with sudo prefix, access to GPIO denied."
 	gpio_access = False
+	raise SystemExit
+
+#class oled(Oled):
+#	def script_starting(script_name):
+#		self.Oled.clear_buffer()
+#		self.Oled.write("Starting "+ script_name)
+#		self.Oled.refresh()
 
 class Terminalmsg():
 	'''Class for printing information to the
@@ -37,12 +44,14 @@ class Terminalmsg():
 	def __init__(self):
 		'''Runs on class initialisation. Sets
 		   variables to control prompt print colour.'''
-		self.OK = "\033[1;32m"
-		self.INFO = "\033[1;36m"
-		self.WARNING = "\033[1;31m"
-		self.FAIL = "\033[1;31m"
-		self.BOOT = "\033[1;33m"
-		self.AUTO = "\033[0m"
+		self.OK = "\033[32m" # Bright green.
+		self.INFO = "\033[36m" # Bright blue.
+		self.WARNING = "\033[33m" # Bold orange.
+		self.FAIL = "\033[31m" # Dark red.
+		self.BOOT = "\033[35m" # Dark, bold pink.
+		self.INDIGO = "\033[1;34m" # Indigo.
+		self.YELLOW = "\033[1;33m" # Yellow.
+		self.AUTO = "\033[0m" # Very pale grey. Automatic terminal colour.
 
 	def printf(self, msg):
 		'''Prints $msg to the terminal literally,
