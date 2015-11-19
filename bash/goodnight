@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "Lobsang will now go to sleep. Sweet dreams, little one!"
+cd /home/pi/lobsang/
+sudo python -c "import Lobsang; Lobsang.halt()"
+exit 0

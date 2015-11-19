@@ -69,14 +69,14 @@ def clear():
 	'''Clears buffer and screen.'''
 	global buffer, old_cursor_line
 	old_cursor_line = 0
-	draw.rectangle((0,0,127,64), outline=0, fill=0) # draw black rectangle over whole buffer image
+	draw.rectangle((0,0,127,63), outline=0, fill=0) # draw black rectangle over whole buffer image
 	refresh()
 
 def clear_buffer():
 	'''Clears buffer but not screen.'''
 	global buffer, old_cursor_line
 	old_cursor_line = 0
-	draw.rectangle((0,0,127,64), outline=0, fill=0) # draw black rectangle over whole buffer image
+	draw.rectangle((0,0,127,63), outline=0, fill=0) # draw black rectangle over whole buffer image
 
 def refresh(blackout=True):
 	'''Writes buffer to screen. Quite slow.'''
@@ -130,9 +130,9 @@ def set_pixel((x, y), val):
         page = int(y) / 8 # which page is the pixel in? 0 to 7
         page_pos = y % 8 # what's left over after dividing by 8? this is the position of the pixel in the page
         if val == 1: # if told to set pixel to on
-                buffer[page][x] = buffer[page][x] | (1 << page_pos) # set bit with mask and bitwise OR
+                buffer[page][x] = 1#buffer[page][x] | (1 << page_pos) # set bit with mask and bitwise OR
         elif val == 0: # if told to set pixel to off
-                buffer[page][x] = buffer[page][x] & ~(1 << page_pos) # negative mask: all on except bit to unset
+                buffer[page][x] = 0#buffer[page][x] & ~(1 << page_pos) # negative mask: all on except bit to unset
 
 def get_pixel((x, y)):
 	'''Gets single pixel value (1 or 0) from buffer (NOT screen!).'''
@@ -157,26 +157,25 @@ def set_font_size(size):
 def splashscreen():
 	command(off)
 	clear_buffer()
-	render("betabigtall.bmp", pos=(6, 9))
+	render("lobsang_beta.bmp", pos=(6, 9))
 	refresh()
 	command(on)
 
-def write(string, pos=None, epos=None, size=None):
+def write(string, pos=None, epos=None, size=8):
 	'''Writes a string to the buffer. Can position start of string,\r\n
 	   create (invisible) box to write into (hit right hand \r\n
 	   wall = newline so text stays in box) and set font size.'''
-	global font_size, font, font8, font16, font24, old_cursor_line, buffer
-	if size != None: # specified size- change global values
-		if size == 16:
-			font = font16
-			font_size = 16
-		elif size == 24:
-			font = font24
-			font_size = 24
-		else: # catch wrong font sizes and size = 8
-			font = font8 # default size
-			font_size = 8
-	newline = font_size / 8 # space between line and line below
+	# TODO: This is very messy and unpythonic. Rework it entirely, and make it much better.
+	global font, font_size, font8, font16, font24, old_cursor_line, buffer
+	if size == 16:
+		font = font16
+		font_size = 16
+	elif size == 24:
+		font = font24
+		font_size = 24
+	else: # catch wrong font sizes and size = 8
+		font = font8 # default size
+		font_size = 8
 	if pos == None:
 		pos = (0, old_cursor_line)
 	if epos != None: # max right and bottom values specified
@@ -185,34 +184,33 @@ def write(string, pos=None, epos=None, size=None):
 		limit_x, limit_y = 127, 63
 	string_x, string_y = pos # top left corner of the text render area
 	string_width, string_height = draw.textsize(string, font=font) # width and height of string on screen
-	string_height -= 1
 	end_x = string_x + string_width # right edge of text render area, using literal screen coords
-	end_y = string_y + string_height # bottom edge of text render area, using literal screen coords
+	end_y = string_y + string_height - 2 # bottom edge of text render area, using literal screen coords
+	newline = 0#font_size / 8 + 1 # space between line and line below
 	
 	if end_x <= limit_x: # string can be written with no problems
-		#temp_buffer = buffer.crop((0, 0, 64, 32))
-		#buffer = buffer.offset(0, -string_height)
-		draw.rectangle((string_x, string_y, string_x + string_width, string_y + string_height), outline = 0, fill = 0)
+		draw.rectangle((string_x, string_y + 1, end_x, end_y), outline=0, fill=0)
 		draw.text(pos, string, font=font, fill=255)
-		old_cursor_line = string_y + string_height
+		old_cursor_line = string_y + string_height - 2
 	else: # string to write would go over the right hand edge of the screen / limit area
 		if " " in string: # can you wrap text? or is it only one word?
 			words = string.split(" ") # individual words
 			for i in range(string.count(" "), 1, -1): # between the number of spaces in text and 1. reverse iteration
 				temp_x, temp_y = draw.textsize(" ".join(words[:i]), font=font) # temporary width + height check variables
+				temp_y -= 2
 				if string_x + temp_x <= limit_x: # if text is no longer too long (x start pos on screen + current string width <= max width)
 					string = " ".join(words[:i]) # join the string back together, leaving off the too long bit
 					next_string = " ".join(words[i:]) # the too long bit (to be written one line down)
 					##############
-					draw.rectangle((string_x, string_y, string_x + temp_x, string_y + temp_y), outline = 0, fill = 0)
+					draw.rectangle((string_x, string_y + 1, string_x + temp_x, string_y + temp_y), outline = 0, fill = 0)
 					draw.text(pos, string, font=font, fill=255) # draw the text to the buffer
-					write(next_string, (string_x, string_y + font_size + newline), (limit_x, limit_y), font_size) # write the rest- this is the same function again (this one) so it will check again for too long string
+					write(next_string, (string_x, end_y), (limit_x, limit_y), font_size) # write the rest- this is the same function again (this one) so it will check again for too long string
 					break # don't keep looping, you'll end up writing wrong shorter strings
 		else: # one long word
 			for i in range(len(string), 1, -1):
 				word = string[:i] # cut off the end
-				x,y = draw.textsize(word, font=font)
-				if x <= limit_x:
+				temp_x, temp_y = draw.textsize(word, font=font)
+				if temp_x <= limit_x:
 					draw.rectangle((string_x, string_y, string_x + x, string_y + y), outline = 0, fill = 0)
 					draw.text(pos, word, font=font, fill=255)
 					write(string[i:], (string_x, string_y + font_size + newline), (limit_x, limit_y), font_size) # write the rest
