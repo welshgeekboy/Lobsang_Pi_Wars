@@ -2,7 +2,7 @@
 <p>Plus the robot's general purpose libraries.</p>
 
 <p>This is all the code used on Lobsang, my Pi Wars 2015 competing robot.</p>
-<p>My blog about the Pi Wars challenge is at <a href="www.letsmakerobots.com/blog/23676">LetsMakeRobots.com</a> where you will find details of the build and code development.</p>
+<p>My blog about the Pi Wars challenge is at <a href="http:www.letsmakerobots.com/blog/23676">LetsMakeRobots.com</a> where you will find details of the build and code development.</p>
 
 <p>Description of each file:
 	<ul><h5>Libraries:</h5>
