@@ -6,6 +6,8 @@
 #include <Servo.h>
 Servo pan;
 Servo tilt;
+Servo ball_guide;
+Servo paddle_release;
 
 // kazillions of variables
 const int master_enable = 2;
@@ -18,6 +20,8 @@ const int right_motor_forward = 7;
 const int right_motor_backward = 8;
 const int pan_servo = 9;
 const int tilt_servo = 10;
+const int guide_servo = 11;
+const int paddle_servo = 12;
 
 const int loop_pause = 10; // Delay (ms) between: each loop cycle; jump to next stepped pwm value for left and right motor
 
@@ -28,8 +32,12 @@ int right_motor_aim = 0;
 int motor_calibration = 0; // Pi controls the motor calibration
 boolean instantly_update_motors = false;
 
+boolean launcher_connected = false;
+
 int tilt_ms = 1200;
 int pan_ms = 1430;
+int guide_ms = 1500;
+int paddle_ms = 1500;
 
 boolean disabled = true;
 boolean pi_ready = false;

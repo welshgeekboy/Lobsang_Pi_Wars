@@ -24,7 +24,7 @@ NEW_COMMAND: // If $command is more than one command in the same string eg "TS12
     }
     else if(command.startsWith("LMR")) // LMR == Left Motor 'Stepped' Ramped' to value specified, from previous value.
     {
-      if(command.length() > 4)
+      if(command.length() >= 5)
       {
         tens = int(command.charAt(3)) - 48; // Minus 48, as ASCII number values are N+48.
         units = int(command.charAt(4)) - 48;
@@ -39,7 +39,7 @@ NEW_COMMAND: // If $command is more than one command in the same string eg "TS12
     }
     else if(command.startsWith("RMR")) // RMR == 'Right Motor Ramped' to value specified from previous value.
     {
-      if(command.length() > 4)
+      if(command.length() >= 5)
       {
         tens = int(command.charAt(3)) - 48;
         units = int(command.charAt(4)) - 48;
@@ -54,7 +54,7 @@ NEW_COMMAND: // If $command is more than one command in the same string eg "TS12
     }
     else if(command.startsWith("BMR")) // BMR == 'Both Motors Ramped' to value specified from previous value.
     {
-      if(command.length() > 4)
+      if(command.length() >= 5)
       {
         tens = int(command.charAt(3)) - 48;
         units = int(command.charAt(4)) - 48;
@@ -70,7 +70,7 @@ NEW_COMMAND: // If $command is more than one command in the same string eg "TS12
     }
     else if(command.startsWith("LMI")) // LMI == 'Left Motor Instantly' set to value specified.
     {
-      if(command.length() > 4)
+      if(command.length() >= 5)
       {
         tens = int(command.charAt(3)) - 48;
         units = int(command.charAt(4)) - 48;
@@ -87,7 +87,7 @@ NEW_COMMAND: // If $command is more than one command in the same string eg "TS12
     }
     else if(command.startsWith("RMI")) // RMI == 'Right Motor Instantly' set to value specified.
     {
-      if(command.length() > 4)
+      if(command.length() >= 5)
       {
         tens = int(command.charAt(3)) - 48;
         units = int(command.charAt(4)) - 48;
@@ -104,7 +104,7 @@ NEW_COMMAND: // If $command is more than one command in the same string eg "TS12
     }
     else if(command.startsWith("BMI")) // BMI == 'Both Motors Instantly' set to value specified.
     {
-      if(command.length() > 4)
+      if(command.length() >= 5)
       {
         tens = int(command.charAt(3)) - 48;
         units = int(command.charAt(4)) - 48;
@@ -123,7 +123,7 @@ NEW_COMMAND: // If $command is more than one command in the same string eg "TS12
     }
     else if(command.startsWith("PS")) // PS == set 'Pan Servo' angle with a 1000 to 2000 ms pulse.
     {
-      if(command.length() > 5)
+      if(command.length() >= 6)
       {
         thousands = int(command.charAt(2)) - 48;
         hundreds = int(command.charAt(3)) - 48;
@@ -141,7 +141,7 @@ NEW_COMMAND: // If $command is more than one command in the same string eg "TS12
     }
     else if(command.startsWith("TS")) // TS == set 'Tilt Servo' angle with a 1000 to 2000 ms pulse.
     {
-      if(command.length() > 5)
+      if(command.length() >= 6)
       {
         thousands = int(command.charAt(2)) - 48;
         hundreds = int(command.charAt(3)) - 48;
@@ -150,6 +150,67 @@ NEW_COMMAND: // If $command is more than one command in the same string eg "TS12
         tilt_ms = constrain(thousands * 1000 + hundreds * 100 + tens * 10 + units, 1000, 2000);
         tilt.writeMicroseconds(tilt_ms);
         command_length = 6;
+      }
+      else
+      {
+        delay(15);
+        goto TOO_SHORT;
+      }
+    }
+    else if (command.startsWith("LAC")) // Set whether the 'LAuncher is Connected' or not. (Dis)connects hardware.
+    {
+      if(command.length() >= 4)
+      {
+        units = int(command.charAt(3)) - 48;
+        if(units == 1)
+        {
+          paddle_release.attach(paddle_servo);
+          ball_guide.attach(guide_servo);
+          launcher_connected = true;
+        }
+        else
+        {
+          paddle_release.detach();
+          ball_guide.detach();
+          launcher_connected = false;
+        }
+        command_length = 4;
+      }
+      else
+      {
+        delay(15);
+        goto TOO_SHORT;
+      }
+    }
+    else if(command.startsWith("LAP")) // Set the 'LAuncher Paddle' servo to specified ms angle.
+    {
+      if(command.length() >= 7)
+      {
+        thousands = int(command.charAt(3)) - 48;
+        hundreds = int(command.charAt(4)) - 48;
+        tens = int(command.charAt(5)) - 48;
+        units = int(command.charAt(6)) - 48;
+        paddle_ms = constrain(thousands * 1000 + hundreds * 100 + tens * 10 + units, 1000, 2000);
+        paddle_release.writeMicroseconds(paddle_ms);
+        command_length = 7;
+      }
+      else
+      {
+        delay(15);
+        goto TOO_SHORT;
+      }
+    }
+    else if(command.startsWith("LAG")) // Set the 'LAuncher ball Guide' servo to specified ms angle.
+    {
+      if(command.length() >= 7)
+      {
+        thousands = int(command.charAt(3)) - 48;
+        hundreds = int(command.charAt(4)) - 48;
+        tens = int(command.charAt(5)) - 48;
+        units = int(command.charAt(6)) - 48;
+        guide_ms = constrain(thousands * 1000 + hundreds * 100 + tens * 10 + units, 1000, 2000);
+        ball_guide.writeMicroseconds(guide_ms);
+        command_length = 7;
       }
       else
       {

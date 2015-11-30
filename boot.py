@@ -52,13 +52,14 @@ else:
 			break
 	if not duino_online:
 		Lobsang.terminal.fail("Testing RasPiO Duino")
-		Lobsang.terminal.info("Checking RasPiO Duino with avrdude...")
+		Lobsang.terminal.check("Checking RasPiO Duino with avrdude...")
 		duino_offline = os.system("sudo avrdude -q -q -p m328p -c gpio -P gpio 2> /tmp/avrdude_duino_output_dump")
 		if duino_offline == 0 and reply == "":
 			Lobsang.terminal.warning("Duino connected, but core.ino may not be uploaded! Duino is not responding.")
 		elif duino_offline == 0 and reply != "":
 			Lobsang.terminal.warning("Duino connected but is not responding correctly. Received: '%s'" %reply)
 		elif duino_offline != 0:
+			Lobsang.terminal.fail("Checking RasPiO Duino with avrdude")
 			Lobsang.terminal.warning("Duino either not connected or not functioning")
 			print "avrdude: Exited with code %i." %duino_offline
 		duino_offline = True
