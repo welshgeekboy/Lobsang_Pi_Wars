@@ -85,6 +85,7 @@ if oled_online:
 
 # This returns a boolean value, which tells the code if the login was successful.
 attempt = Padlock.attempt_unlock()
+
 if attempt == Padlock.unlocked:
 	if oled_online:
 		Oled.write("Login successful")

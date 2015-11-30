@@ -452,6 +452,53 @@ class Head():
 		self.pan_ms = pan_ms
 		self.tilt_ms = tilt_ms
 
+class Appendage():
+	'''Functions specific to the Pi Wars skittles challenge.
+	   This class may be expanded in future (eg. for a gripper).
+	   Currently, you can open and close the ball guide and
+	   release the ball launching paddle.'''
+	class Launcher():
+		def __init__(self):
+			self.guide_status = "open"
+			self.paddle_released = False
+			serial.write("LAG1300")
+			serial.write("LAP1700")
+		
+		def connect(self):
+			serial.write("LAC1") # Tell Duino that the launcher is connected.
+		
+		def disconnect(self):
+			serial.write("LAC0") # Get the Duino to disable launcher outputs.
+
+		def open_guide(self):
+			if self.guide_status == "closed":
+				serial.write("LAG1300")
+				self.guide_status = "open"
+		
+		def close_guide(self):
+			if self.guide_status == "open":
+				serial.write("LAG1700")
+				self.guide_status = "closed"
+		
+		def release_paddle(self):
+			if not self.paddle_released:
+				serial.write("LAP1300")
+				time.sleep(0.2)
+				serial.write("LAP1700")
+				self.paddle_released = True
+		
+		def reset_paddle(self):
+			serial.write("LAP1700")
+			self.paddle_released = False
+		
+		def launch_ball(self):
+			self.open_guide()
+			time.sleep(0.1)
+			self.release_paddle()
+			time.sleep(0.7)
+			self.close_guide()
+
+
 class Msglog():
 	def log(self, logstring):
 		'''Adds log message to /home/pi/lobsang/memories/log/Lobsang.log'''
@@ -493,16 +540,19 @@ class Msglog():
 		old_path  = "/home/pi/lobsang/memories/log/Lobsang.log"
 		new_path  = "/home/pi/lobsang/memories/log/Lobsang.log"
 		save_path = "/home/pi/lobsang/memories/log/archive/Lobsang.log%s" %int(time.time())
-		with open(old_path) as old_file:
-			os.system("touch "+ save_path)
-			with open(save_path, "w") as save_file:
-				fullstring = time.asctime() +" --> [ END ] This log file was archived. A new log file is used instead.\r\n"
-				save_file.writelines(old_file.read())
-				save_file.writelines(fullstring)
-		with open(new_path, "w") as new_file:
-				fullstring = time.asctime() +" --> [BEGIN] New log file started. To review old log files, see ./archive/\r\n"
-				new_file.writelines(fullstring)
-
+		with open(old_path) as current_file:
+			if len(current_file.readlines()) > 1: # Only archive current logfile if it has been written to this session. No point archiving an empty file.
+				new_logfile = True
+		if new_logfile:
+			with open(old_path) as old_file:
+				os.system("touch "+ save_path)
+				with open(save_path, "w") as save_file:
+					fullstring = time.asctime() +" --> [ END ] This log file was archived. A new log file is used instead.\r\n"
+					save_file.writelines(old_file.read())
+					save_file.writelines(fullstring)
+				with open(new_path, "w") as new_file:
+					fullstring = time.asctime() +" --> [BEGIN] New log file started. To review old log files, see ./archive/\r\n"
+					new_file.writelines(fullstring)
 def core_temperature():
 	'''Returns the temperature of the Pi in degrees C
 	   TODO: make it stop only printing to terminal.'''
@@ -551,6 +601,7 @@ def halt():
 	duino.shutdown()
 	terminal.info("Shutting down Lobsang...")
 	log.log("Halting Lobsang. Raspbian is shutting down.")
+	log.new_log() # If Lobsang halted through this code (it generally does) then create a new logfile.
 	oled.clear_buffer()
 	oled.write("Shutting down Lobsang...", pos=(0,0))
 	oled.write("Wait until Duino light goes out before switching off.", pos=(0, 24))
@@ -558,7 +609,7 @@ def halt():
 	os.system("sudo halt")
 
 
-# Create instances of each class
+# Create instances of each class.
 serial   = Serial()
 log      = Msglog()
 terminal = Terminalmsg()
@@ -567,3 +618,4 @@ wheels   = Wheels()
 sensors  = Sensors()
 voice    = Voice()
 head     = Head(1500, 1300)
+launcher = Appendage().Launcher()

@@ -62,8 +62,9 @@ def render_menu(menu_pos):
 render_menu(0) # Display the menu at the automatic starting point- at the top.
 while True: # Loop indefinitely, waiting to run the piwars programs.
 	for event in pygame.event.get():
-		if event.type == KEYDOWN:
+		if event.type == KEYDOWN: # Check for keys pressed down
 			if event.key == K_1:
+				# Key '1' pressed. Run the line follow program 'line_follower.py'.
 				print "Piwars Menu: Running line follow program..."
 				pygame.quit() # Halt the pygame window to stop a weird freeze when more than one pygame window opens in the terminal, and so you can see any terminal messages printed by script run below.
 				os.system("sudo python line_follower.py")
@@ -73,6 +74,7 @@ while True: # Loop indefinitely, waiting to run the piwars programs.
 				display = pygame.display.set_mode((1280, 800))
 			
 			elif event.key == K_2:
+				# Key '2' pressed. Run the manual control program 'manual_control.py'.
 				print "Piwars Menu: Running manual control program..."
 				pygame.quit()
 				os.system("sudo python manual_control.py")
@@ -82,6 +84,7 @@ while True: # Loop indefinitely, waiting to run the piwars programs.
 				display = pygame.display.set_mode((1280, 800))
 			
 			elif event.key == K_3:
+				# Key '3' pressed. Run the drag race style manual control program 'drag_race.py'.
 				print "Piwars Menu: Running straight line speed test program..."
 				pygame.quit()
 				os.system("sudo python drag_race.py")
@@ -91,6 +94,7 @@ while True: # Loop indefinitely, waiting to run the piwars programs.
 				display = pygame.display.set_mode((1280, 800))
 			
 			elif event.key == K_4:
+				# Key '4' pressed. Run the proximity alert program 'proximity_alert.py'.
 				print "Piwars Menu: Running proximity alert program..."
 				pygame.quit()
 				os.system("sudo python proximity_alert.py")
@@ -100,6 +104,7 @@ while True: # Loop indefinitely, waiting to run the piwars programs.
 				display = pygame.display.set_mode((1280, 800))
 			
 			elif event.key == K_5:
+				# Key '5' pressed. Run the manual control skittles / bowling program 'skittles_challenge.py'
 				print "Piwars Menu: Running skittles challenge program..."
 				pygame.quit()
 				os.system("sudo python skittles_challenge.py")
@@ -118,6 +123,7 @@ while True: # Loop indefinitely, waiting to run the piwars programs.
 				display = pygame.display.set_mode((1280, 800))
 			
 			elif event.key == K_7:
+				# Key '7' pressed. Back up files in ~/lobsang/ and ~/sketchbook to a USB stick using program 'backup.sh'.
 				print "Piwars Menu: Will now back up files..."
 				pygame.quit()
 				Lobsang.oled.clear_buffer()
@@ -134,22 +140,28 @@ while True: # Loop indefinitely, waiting to run the piwars programs.
 				display = pygame.display.set_mode((1280, 800))
 			
 			elif event.key == K_8:
+				# Key '8' pressed. Shuts down the robot by running 'sudo halt' then waiting for 10 secs
+				# (before this time is up the program gets stopped as the system shuts down. The delay
+				# is so that this program does not exit back to 'autorun.py' as that prompts a login as the Pi shuts down!).
 				print "Piwars Menu: Will now shut down robot. Halting menu."
 				pygame.quit()
 				Lobsang.halt()
-				sys.exit()
+				time.sleep(10)
 				
-			elif event.key == K_UP: # Move up the menu one line.
+			elif event.key == K_UP:
+			# Up key pressed. Scroll the menu options up one line.
 				if menu_position > 0:
 					menu_position -= 1
 					render_menu(menu_position)
 			
-			elif event.key == K_DOWN: # Move down the menu one line.
-				if menu_position < len(menu_options) - 4: # Use len() to make the menu adaptable. Add and remove menu items and it will still work.
+			elif event.key == K_DOWN:
+			# Down key pressed. Scroll the menu options down one line.
+				if menu_position < len(menu_options) - 4: # Use len() to make the menu adaptable. Add and remove menu items and this will still scroll right.
 					menu_position += 1
 					render_menu(menu_position)
 			
-			if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE): # Exit piwars_menu.py (ESC (or close button in GUI) pressed).
+			if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+			# ESC (or close button if in X windows) pressed. Exit this program, 'piwars_menu.py'.
 				print "Piwars Menu: Halting."
 				Lobsang.duino.disable()
 				Lobsang.oled.clear_buffer()

@@ -1,21 +1,20 @@
 #!/usr/bin/env python
 #
-# Padlock.py: a script that can allow or deny access
-# to Lobsang. Works like a login but you can use
-# a USB stick as a 'key' as well as a passkey. The
-# USB stick must have the same ID etc as $correct_key,
+# Padlock.py-  a script that can allow or deny access
+# to Lobsang.  Works  like a  login but you can use a 
+# USB stick as a 'key' as  well as a passkey. The USB
+# stick  must  have the same ID etc as  $correct_key,
 # so there is only one stick that will work. Designed
-# to be used as a library. attempt_unlock() returns
-# True or False depending on whether the user managed
-# entered correct key (number or USB stick).
+# to be used as a library.  attempt_unlock()  returns
+# True or False depending on whether the user entered
+# correct USB stick key or manually  entered passkey.
 #
 # Created Nov 2015 by Finley Watson
 
 import os
-import sys
 
-# the two correct keys- USB stick ID or a 4-digit code
-correct_key = "ID ****:**** SanDisk Corp. Cruzer"
+# The correct keys- 2 USB stick IDs or a 4-digit code, manually entered.
+correct_keys = ["ID ****:*** SanDisk Corp. Cruzer", "ID ****:**** Kingston Technology Company Inc."]
 correct_passkey = "****"
 
 unlocked = True
@@ -33,11 +32,12 @@ def attempt_unlock():
 		keys = usblist.readlines()
 	os.system("rm usbs.txt")
 	
-	for key in keys:
-		if correct_key in key:
-			_unlocked = True
-			if VERBOSE: print "Lock: Correct USB device found. You have gained system access."
-			return True
+	for correct_key in correct_keys:
+		for key in keys:
+			if correct_key in key:
+				_unlocked = True
+				if VERBOSE: print "Lock: Correct USB device found. You have gained system access."
+				return True
 	
 	if VERBOSE: print "Lock: USB key not found. Will attempt passkey entry instead."
 	while not _unlocked and tries > 0:
