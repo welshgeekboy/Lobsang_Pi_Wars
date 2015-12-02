@@ -99,16 +99,16 @@ if [ $verbose ] ; then
 fi
 
 # Mount the USB stick
-sudo mkdir /media/CRUZER 2> /tmp/delete_me.dump
-sudo mount /dev/sda1 /media/CRUZER 2> /tmp/delete_me.dump
+sudo mkdir /media/CRUZER 2>> /tmp/delete_me.dump
+sudo mount /dev/sda1 /media/CRUZER 2>> /tmp/delete_me.dump
 
 # Just in case the directories don't exist (very unlikely)
 # try to create them. Send stderr to a dump file in /tmp/
-sudo mkdir /media/CRUZER/Lobsang/                   2> /tmp/delete_me.dump
-sudo mkdir /media/CRUZER/Lobsang/github/            2> /tmp/delete_me.dump
-sudo mkdir /media/CRUZER/Lobsang/github/sketchbook/ 2> /tmp/delete_me.dump
-sudo mkdir /media/CRUZER/Lobsang/backup/            2> /tmp/delete_me.dump
-sudo mkdir /media/CRUZER/Lobsang/backup/sketchbook/ 2> /tmp/delete_me.dump
+sudo mkdir /media/CRUZER/Lobsang/                   2>> /tmp/delete_me.dump
+sudo mkdir /media/CRUZER/Lobsang/github/            2>> /tmp/delete_me.dump
+sudo mkdir /media/CRUZER/Lobsang/github/sketchbook/ 2>> /tmp/delete_me.dump
+sudo mkdir /media/CRUZER/Lobsang/backup/            2>> /tmp/delete_me.dump
+sudo mkdir /media/CRUZER/Lobsang/backup/sketchbook/ 2>> /tmp/delete_me.dump
 
 # Copy over all the all files to be backed up.
 cp -r /home/pi/lobsang/*    /media/CRUZER/Lobsang/github

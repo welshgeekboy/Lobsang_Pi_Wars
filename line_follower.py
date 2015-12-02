@@ -110,7 +110,7 @@ try: # Put the main loop in a try statement to stop the robot and exit cleanly o
 				Lobsang.oled.write("Halting Line Follower.")
 				Lobsang.oled.refresh()
 				pygame.quit()
-				if DEBUG: print " " # Add a cariage-return.
+				if DEBUG: print " " # Add a carriage-return.
 				print "Line Follower: Halting"
 				print "Line Follower: main loop ran for %s seconds or %i times, with average time per loop of %fs and %s loops per second." %(str(int((current_time - start_time) * 100.0) / 100.0), total_loops, (current_time - start_time) / total_loops, str(int(1 / ((current_time - start_time) / total_loops) * 100.0) / 100.0))
 				time.sleep(0.5)

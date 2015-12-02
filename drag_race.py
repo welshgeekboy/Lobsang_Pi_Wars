@@ -1,103 +1,140 @@
+#!/usr/bin/env python
+#
+# drag_race.py- works like manual control script
+# except  left and  right  controls are  greatly
+# reduced so the robot mostly goes in a straight
+# line.  This is designed for the straight  line
+# speed test so the robot does not need to turn.
+#
+# Created Dec 2015 by Finley Watson
+
+print "Straight Line Speed Test: Initialising."
+
+# Import all the libraries we need.
+import Lobsang
 import pygame
 import sys
 import time
 from pygame.locals import *
-import Lobsang
 
-Lobsang.begin()
+# Give feedback to the oled.
+Lobsang.oled.write("Starting Straight Line Speed Test code (manual control)")
+Lobsang.oled.refresh()
 
-LPS = 100 # number of loops per second
+# All the variables we need.
+loops_per_second = 100
+total_loops = 0
 
-LMS = 0
-RMS = 0
+left_motor_speed = 0
+right_motor_speed = 0
 
-fwd = False
-bkd = False
-lft = False
-rgt = False
-stp = False
+forward = False
+backward = False
+left = False
+right = False
 
-last_command = (fwd, bkd, lft, rgt, stp)
+# Set up pygame.
 pygame.init()
 DISPLAYSURF = pygame.display.set_mode((1280, 800))
 pygame.display.set_caption('Lobsang Manual Control')
 clock = pygame.time.Clock()
 
+# Set up Lobsang and switch on the laser guidance system (a laser pointing forwards!).
+Lobsang.begin(splashscreen=False)
+Lobsang.wheels.calibrate_speeds(-0.7)
+Lobsang.head.aim(1380, 1700)
+Lobsang.head.laser(True)
+
+# Display the default info on the oled.
 Lobsang.oled.clear_buffer()
-Lobsang.oled.write("Manual Ctrl", pos=(0, 0), size=16)
-Lobsang.oled.write("Drag race mode", pos=(0, 24), size=8)
-Lobsang.oled.write("Awaiting instructions...", pos=(0, 36), size=8)
+Lobsang.oled.write("Manual Ctrl", size=16)
+Lobsang.oled.write("Straight Line Speed Test mode.")
+Lobsang.oled.write("Awaiting instructions...")
 Lobsang.oled.refresh()
 
-total_loops = 0
-
-try:
-	start_time = time.time()
-	while True: # main game loop
-		for event in pygame.event.get():
+try: # So except: can stop the robot before script exits.
+	start_time = time.time() # The time the main code started running.
+	while True: # Loop indefinitely.
+		for event in pygame.event.get(): # Search through events for keys we need to respond to. 
 			if event.type == KEYDOWN:
 				if event.key == K_w:
-					fwd = True
+					forward = True
 				elif event.key == K_a:
-					lft = True
+					left = True
 				elif event.key == K_s:
-					bkd = True
+					backward = True
 				elif event.key == K_d:
-					rgt = True
-				elif event.key == K_SPACE:
-					stp = True
-				elif event.key == K_t:
-					words = raw_input("What to say? ")
-					Lobsang.voice.say(str(words))
-				LMS = min(16, LMS)
-				LMS = max(-16, LMS)
-				RMS = min(16, RMS)
-				RMS = max(-16, RMS)
+					right = True
+			
 			if event.type == KEYUP:
 				if event.key == K_w:
-					fwd = False
+					forward = False
 				elif event.key == K_a:
-					lft = False
+					left = False
 				elif event.key == K_s:
-					bkd = False
+					backward = False
 				elif event.key == K_d:
-					rgt = False
+					right = False
 				elif event.key == K_SPACE:
-					stp = False
-			if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+					stop = False
+			
+			if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE): # Exit program (ESC pressed or X button if in GUI).
 				Lobsang.wheels.both(0, ramped=False)
+				Lobsang.head.laser(False)
 				Lobsang.oled.clear_buffer()
-				Lobsang.oled.write("Halting Manual mode.")
-				print "Manual Control: loop ran for %s seconds or %i times, with average time per loop = %fs" %(str(int((time.time() - start_time) * 10) / 10.0), total_loops, (time.time() - start_time) / total_loops)
+				Lobsang.oled.write("Halting Straight Line Speed Test.")
+				Lobsang.oled.refresh()
+				print "Straight Line Speed Test: Loop ran for %s seconds or %i times, with average time per loop = %fs" %(str(int((time.time() - start_time) * 10) / 10.0), total_loops, (time.time() - start_time) / total_loops)
 				clock.tick(2)
 				pygame.quit()
-				Lobsang.oled.clear()
+				Lobsang.quit(screensaver=False)
 				sys.exit()
-		LMS = 0
-		RMS = 0
-		if not True in (fwd, bkd, lft, rgt):
-			stp = True
-		else:
-			stp = False
-		if fwd:
-			LMS += 16
-			RMS += 16
-		if bkd:
-			LMS -= 10
-			RMS -= 10
-		if lft:
-			LMS -= 2
-		if rgt:
-			RMS -= 2
-		elif stp:
-			LMS = 0
-			RMS = 0
-		if (fwd, bkd, lft, rgt, stp) != last_command: # if any of the commands have changed, update the motor speeds
-			Lobsang.wheels.both(left_speed=LMS, right_speed=RMS, ramped=True)
-			last_command = (fwd, bkd, lft, rgt, stp)
+		left_motor_speed = 0
+		right_motor_speed = 0
+		if forward and not left and not right:
+			left_motor_speed = 16
+			right_motor_speed = 16
+		
+		elif forward and left:
+			left_motor_speed = 14
+			right_motor_speed = 16
+		
+		elif forward and right:
+			left_motor_speed = 16
+			right_motor_speed = 14
+		
+		elif backward and not left and not right:
+			left_motor_speed = -10
+			right_motor_speed = -10
+		
+		elif backward and left:
+			left_motor_speed = -10
+			right_motor_speed = -9
+		
+		elif backward and right:
+			left_motor_speed = -9
+			right_motor_speed = -10
+		
+		elif left and not right and not forward and not backward:
+			left_motor_speed = -6
+			right_motor_speed = 6
+		
+		elif right and not left and not forward and not backward:
+			left_motor_speed = 6
+			right_motor_speed = -6
+		
+		Lobsang.wheels.both(left_motor_speed, right_motor_speed)
 	
 		total_loops += 1
-		clock.tick(LPS)
+		clock.tick(loops_per_second)
+		
 except Exception as e:
-	print e
-	print "Manual Control: loop ran for %s seconds or %i times, with average time per loop = %fs" %(str(int((time.time() - start_time) * 10) / 10.0), total_loops, (time.time() - start_time) / total_loops)
+	Lobsang.wheels.both(0)
+	Lobsang.oled.clear_buffer()
+	Lobsang.oled.write("Halting Straight Line Speed Test.")
+	Lobsang.oled.refresh()
+	print "Straight Line Speed Test: An error occurred: '%s'" %e
+	print "Straight Line Speed Test: Loop ran for %s seconds or %i times, with average time per loop = %fs" %(str(int((time.time() - start_time) * 10) / 10.0), total_loops, (time.time() - start_time) / total_loops)
+	time.sleep(0.5)
+	pygame.quit()
+	Lobsang.quit(screensaver=False)

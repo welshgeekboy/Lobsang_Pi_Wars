@@ -75,7 +75,7 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 					backward = False
 				elif event.key == K_d:
 					right = False
-			if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+			if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE): # Exit program (ESC pressed or X button if in GUI).
 				current_time = time.time()
 				Lobsang.wheels.both(0, ramped=False)
 				Lobsang.oled.clear_buffer()
@@ -114,17 +114,19 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 		elif backward and right and not left: # Both backward and right keys pressed, but not left.
 			left_motor_speed = -4
 			right_motor_speed = -16
-		else:
-			left_motor_speed = 0
-			right_motor_speed = 0
 		
 		Lobsang.wheels.both(left_motor_speed, right_motor_speed)
+		
 		total_loops += 1
 		clock.tick(loops_per_second)
+
 except Exception as e:
 	Lobsang.wheels.both(0, ramped=False)
 	Lobsang.oled.clear_buffer()
 	Lobsang.oled.write("Halting Manual Control.")
 	print "An error occurred in Manual Control: %s. Halting." %e
 	print "Manual Control: loop ran for %i seconds or %i times, with average time per loop = %fs" %(int(time.time() - start_time), total_loops, (time.time() - start_time) / total_loops)
+	pygame.quit()
+	time.sleep(0.5)
+	Lobsang.quit(screensaver=False)
 	# Exit

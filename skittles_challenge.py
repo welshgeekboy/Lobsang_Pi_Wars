@@ -25,7 +25,6 @@ from pygame.locals import *
 # Give feedback on the oled.
 Lobsang.oled.write("Starting Skittles Challenge.")
 Lobsang.oled.refresh()
-Lobsang.begin(splashscreen=False)
 
 # All the variables needed.
 loops_per_second = 50
@@ -48,17 +47,19 @@ DISPLAYSURF = pygame.display.set_mode((1280, 800))
 pygame.display.set_caption('Lobsang Skittles Challenge')
 clock = pygame.time.Clock()
 
-# Print the interface info on the oled.
+# Set up Lobsang.
 Lobsang.begin(splashscreen=False)
+Lobsang.wheels.calibrate_speeds(-0.8)
+Lobsang.head.aim(1430, 1430)
+Lobsang.head.laser(True)
+
+# Print the interface info on the oled.
 Lobsang.oled.clear_buffer()
 Lobsang.oled.write("Skittles", pos=(0, 0), size=16)
 Lobsang.oled.write("Control with W, A, S, D keys.")
 Lobsang.oled.write("Control paddle with K, O, P keys.")
 Lobsang.oled.write("Press ESC to quit.")
 Lobsang.oled.refresh()
-
-# Calibrate the motor speeds to run in an approximately straight line.
-Lobsang.wheels.calibrate_speeds(-0.8)
 
 # Tell the Duino that the launcher is connected.
 Lobsang.launcher.connect()
