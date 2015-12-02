@@ -1,5 +1,4 @@
-# Lobsang's Pi Wars code.
-<p>Plus the robot's general purpose libraries.</p>
+# Lobsang's Pi Wars code, plus the robot's general purpose libraries.
 
 <p>This is all the code used on Lobsang, my Pi Wars 2015 competing robot.</p>
 <p>My blog about the Pi Wars challenge is at <a href="http:www.letsmakerobots.com/blog/23676">LetsMakeRobots.com</a> where you will find details of the build and code development.</p>
