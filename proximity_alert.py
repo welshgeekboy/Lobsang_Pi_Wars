@@ -35,6 +35,10 @@ use_ultrasonic = True
 use_ir = True
 finished_approach = False
 
+# What the IR sensor can detect.
+white = 0
+black = 1
+
 # Set up pygame.
 pygame.init()
 display = pygame.display.set_mode((1280, 800))
@@ -104,8 +108,16 @@ try: # Put main loop in a try statement to stop the robot and exit cleanly on an
 					use_ultrasonic = False
 			elif use_ir: # Use the line following sensor to detect when the wall is VERY close.
 				map = Lobsang.sensors.line_map()
-				white = 0
 				if white in map: # If the wall is detected by any of the three sensors, stop the robot.
+					Lobsang.wheels.both(0)
+					while Lobsang.sensors.line_map() != [white, white, white]:
+						map = Lobsang.sensors.line_map()
+						if map[0] == white and map[2] == black: 
+							Lobsang.wheels.left(0)
+							Lobsang.wheels.right(4)
+						elif map[0] == black and map[2] == white:
+							Lobsang.wheels.left(4)
+							Lobsang.wheels.right(0)
 					Lobsang.wheels.both(0)
 					use_ir = False
 					Lobsang.oled.clear_buffer()

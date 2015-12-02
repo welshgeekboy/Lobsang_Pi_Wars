@@ -4,6 +4,15 @@
 # all of Lobsang's basic capabilities
 # into one big,  easy-to-use library.
 #
+# Head servo values: 
+#       (-)
+#        ^
+#        |
+# (+) <--|--> (-) 
+#        |
+#        v
+#       (+)
+#
 # Created Nov 2015 by Finley Watson.
 
 import subprocess
@@ -15,26 +24,23 @@ import RPi.GPIO as GPIO
 import Oled as oled
 
 duino_enable_pin = 4 # Pi output BCM pin to stop Duino doing anything. Duino enabled by default.
-gpio_access = True
 
 try:
+	gpio_access = True
 	GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BCM)
-	
 	GPIO.setup(duino_enable_pin, GPIO.OUT)
+	# IR line sensor board Pi inputs
 	GPIO.setup(16, GPIO.IN)
 	GPIO.setup(20, GPIO.IN)
 	GPIO.setup(21, GPIO.IN)
+	# Laser Pi output
+	GPIO.setup(17, GPIO.OUT)
+	GPIO.output(17, False)
 except RuntimeError:
 	print "Lobsang: Re-run with sudo prefix, access to GPIO denied."
 	gpio_access = False
 	raise SystemExit
-
-#class oled(Oled):
-#	def script_starting(script_name):
-#		self.Oled.clear_buffer()
-#		self.Oled.write("Starting "+ script_name)
-#		self.Oled.refresh()
 
 class Terminalmsg():
 	'''Class for printing information to the
@@ -55,7 +61,7 @@ class Terminalmsg():
 
 	def printf(self, msg):
 		'''Prints $msg to the terminal literally,
-		   so you need to put \\r\\n at the end of
+		   so you need to put a return at the end of
 		   your string if you want to carrige return.'''
 		subprocess.call(["printf", msg])
 	
@@ -265,6 +271,8 @@ class Duino():
 		serial.write("SHUTDOWN")
 	
 	def __exit__(self, type, value, traceback):
+		'''No sure if I need this. The print statement
+		   never runs so I don't think I do need it.'''
 		print "Lobsang.Duino().__exit__() says 'program exited'."
 
 class Wheels():
@@ -275,7 +283,7 @@ class Wheels():
 		# Internally, speed == (0 to 32). The user uses speed == (-16 to 16) though. So here, 16 == 0 in actual motor speed terms.
 		self.left_speed = 16
 		self.right_speed = 16
-		self.calibration = 0
+		self.calibration = -0.4
 	
 	def calibrate_speeds(self, calibration):
 		'''Set the calibration amount (added to right motor,
@@ -289,7 +297,6 @@ class Wheels():
 		calibration = max(calibration, -3.0)
 		self.calibration = calibration
 		calibration = int(calibration * 16)
-		#if calibration < 0: calibration *= -1
 		calibration += 49
 		if calibration < 10: command = "CAL0"
 		else: command = "CAL"
@@ -297,7 +304,7 @@ class Wheels():
 	
 	def left(self, speed, ramped=True):
 		'''Set left motor speed (-16 to 16) via serial.'''
-		if self.left_speed != speed: # Only tell the Duino to chage the speed if the new speed not the same as the current speed.
+		if self.left_speed != speed: # Only tell the Duino to change the speed if the new speed not the same as the current speed.
 			speed += 16
 			speed = min(speed, 32)
 			speed = max(speed, 0)
@@ -308,7 +315,6 @@ class Wheels():
 				command = "LM%s0%i" %(control, speed)
 			else:
 				command = "LM%s%i" %(control, speed)
-			print command
 			serial.write(command)
 	
 	def right(self, speed, ramped=True):
@@ -324,7 +330,6 @@ class Wheels():
 				command = "RM%s0%i" %(control, speed)
 			else:
 				command = "RM%s%i" %(control, speed)
-			print command
 			serial.write(command)
 	
 	def both(self, left_speed, right_speed = "unspecified", ramped=True):
@@ -335,8 +340,8 @@ class Wheels():
 		   sends commands in one go not seperately.'''
 		# This statement only occurs when there are two (L & R) speeds set and they are different and
 		# (later on inside statement) if either or both motor speeds are different from their old speeds.
-		left_speed += 16
 		if right_speed != "unspecified" and right_speed != left_speed:
+			left_speed += 16
 			right_speed += 16
 			left_speed = min(left_speed, 32)
 			left_speed = max(left_speed, 0)
@@ -357,9 +362,11 @@ class Wheels():
 					command += "RM%s%i" %(control, right_speed)
 			self.left_speed = left_speed
 			self.right_speed = right_speed
+			#print command
 			if command != "": serial.write(command)
 		
-		elif self.left_speed != left_speed or self.right_speed != left_speed:
+		elif self.left_speed != left_speed + 16 or self.right_speed != left_speed + 16:
+			left_speed += 16
 			command = ""
 			left_speed = min(left_speed, 32)
 			left_speed = max(left_speed, 0)
@@ -371,6 +378,7 @@ class Wheels():
 				command += "BM%s0%i" %(control, left_speed)
 			else:
 				command += "BM%s%i" %(control, left_speed)
+			#print command
 			serial.write(command)
 
 class Sensors():
@@ -420,6 +428,9 @@ class Head():
 		self.tilt_ms = tilt_ms
 		#serial.write("PS"+ str(pan_ms) +"TS"+ str(tilt_ms))
 	
+	def laser(self, value):
+		GPIO.output(17, value)
+
 	def pan(self, ms):
 		'''Set the angle of the pan (left/right) face servo (1000 to 2000) in ms.'''
 		if ms > 2000:
@@ -582,6 +593,7 @@ def begin(splashscreen=True):
 
 def quit(screensaver=True):
 	head.aim(1430, 1200)
+	head.laser(False)
 	if screensaver:
 		oled.clear_buffer()
 		oled.write("Booted.")
