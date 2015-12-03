@@ -98,6 +98,10 @@ if [ $verbose ] ; then
 	printf "Copying...\r"
 fi
 
+# Clear the dump file of old data
+sudo rm /tmp/delete_me.dump
+sudo touch /tmp/delete_me.dump
+
 # Mount the USB stick
 sudo mkdir /media/CRUZER 2>> /tmp/delete_me.dump
 sudo mount /dev/sda1 /media/CRUZER 2>> /tmp/delete_me.dump
@@ -130,13 +134,13 @@ while read path; do
 done < .ignore
 
 # Automatically remove the sensitive info from Padlock.py so I'm not
-# telling the world the login keys to access Lobsang! 'sed -n' makes
-# sed quiet, '-i' changes the file instead of printing to the terminal
+# telling the world the login keys to access Lobsang! I use 'sed -i'
+# to change the file directly instead of eg. printing to the terminal.
 while read key; do
 	if [ $verbose ] ; then
 		echo "Removing key '$key' from USB stick's Padlock.py for GitHub."
 	fi
-	sed -n -i s/$key/"****"/ /media/CRUZER/Lobsang/github/Padlock.py
+	sed -i s/$key/****/ /media/CRUZER/Lobsang/github/Padlock.py
 done < .passkeys
 
 if [ $verbose ] ; then
@@ -146,14 +150,14 @@ fi
 # If user has specified to list the content of /media/CRUZER/Lobsang/github
 # with the arguement "-l" or "--list", then do. Otherwise (auto) don't.
 if [ $list_usb_folder ] ; then
-	echo "Contents of /media/CRUZER/Lobsang/github:"
-	ls -A --color=auto /media/CRUZER/Lobsang/github
+	echo "Contents of /media/CRUZER/Lobsang/github/:"
+	ls -hal --color=auto /media/CRUZER/Lobsang/github/
 fi
 
 # Unmount the USB stick
 if [ $unmount_when_finished ] ; then
-	sudo umount /media/CRUZER
-	sudo rmdir /media/CRUZER
+	sudo umount /media/CRUZER/
+	sudo rm -r /media/CRUZER/
 fi
 
 if [ $verbose ] ; then

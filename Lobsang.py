@@ -471,7 +471,6 @@ class Appendage():
 	class Launcher():
 		def __init__(self):
 			self.guide_status = "open"
-			self.paddle_released = False
 			serial.write("LAG1300")
 			serial.write("LAP1700")
 		
@@ -492,21 +491,18 @@ class Appendage():
 				self.guide_status = "closed"
 		
 		def release_paddle(self):
-			if not self.paddle_released:
-				serial.write("LAP1300")
-				time.sleep(0.2)
-				serial.write("LAP1700")
-				self.paddle_released = True
+			serial.write("LAP1000")
+			time.sleep(0.4)
+			serial.write("LAP2000")
 		
 		def reset_paddle(self):
-			serial.write("LAP1700")
-			self.paddle_released = False
+			serial.write("LAP2000")
 		
 		def launch_ball(self):
 			self.open_guide()
 			time.sleep(0.1)
 			self.release_paddle()
-			time.sleep(0.7)
+			time.sleep(0.5)
 			self.close_guide()
 
 
@@ -606,10 +602,13 @@ def quit(screensaver=True):
 
 def halt():
 	duino.enable()
-	time.sleep(0.02)
-	if not duino.online():
+	time.sleep(0.1)
+	tries = 0
+	while not duino.online() and tries < 5:
+		print "Resetting..."
 		duino.reset()
-		time.sleep(0.5)
+		time.sleep(2)
+		tries += 1
 	duino.shutdown()
 	terminal.info("Shutting down Lobsang...")
 	log.log("Halting Lobsang. Raspbian is shutting down.")

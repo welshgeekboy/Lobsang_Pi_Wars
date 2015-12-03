@@ -49,9 +49,11 @@ clock = pygame.time.Clock()
 
 # Set up Lobsang.
 Lobsang.begin(splashscreen=False)
-Lobsang.wheels.calibrate_speeds(-0.8)
-Lobsang.head.aim(1430, 1430)
+Lobsang.wheels.calibrate_speeds(-0.6)
+Lobsang.head.aim(1380, 1430)
 Lobsang.head.laser(True)
+# Tell the Duino that the launcher is connected.
+Lobsang.launcher.connect()
 
 # Print the interface info on the oled.
 Lobsang.oled.clear_buffer()
@@ -61,9 +63,6 @@ Lobsang.oled.write("Control paddle with K, O, P keys.")
 Lobsang.oled.write("Press ESC to quit.")
 Lobsang.oled.refresh()
 
-# Tell the Duino that the launcher is connected.
-Lobsang.launcher.connect()
-
 old_time = time.time()
 total_loops = 0
 
@@ -72,9 +71,9 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 	while True: # Loop indefinitely.
 		for event in pygame.event.get(): # Search through events for keys we need to respond to.
 			if event.type == KEYDOWN:
-				#rec = Lobsang.serial.read()
-				#if rec != '':
-				#	print rec
+				rec = Lobsang.serial.read()
+				if rec != '':
+					print rec
 				if event.key == K_w:
 					forward = True
 				elif event.key == K_a:
@@ -113,6 +112,7 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 				current_time = time.time()
 				Lobsang.wheels.both(0, ramped=False)
 				Lobsang.launcher.disconnect()
+				Lobsang.head.laser(False)
 				Lobsang.oled.clear_buffer()
 				Lobsang.oled.write("Halting Skittles Challenge code.") 
 				Lobsang.oled.refresh(blackout=False)
@@ -120,7 +120,7 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 				print "Skittles Challenge: Halting."
 				time.sleep(0.5)
 				pygame.quit()
-				Lobsang.oled.clear()
+				Lobsang.quit(screensaver=False)
 				sys.exit()
 		
 		left_motor_speed = 0
@@ -128,12 +128,11 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 		if forward and not True in (left, right, backward): # Only forward key pressed
 			left_motor_speed = 16
 			right_motor_speed = 16
-			calibration = -0.15
+			#calibration = -0.6
 		
 		elif backward and not True in (forward, left, right): # Only backward key pressed
 			left_motor_speed = -16
 			right_motor_speed = -16
-			calibration = -0.15
 		
 		elif left and not True in (forward, right, backward): # Only left key pressed
 			left_motor_speed = -9
@@ -168,10 +167,11 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 			Lobsang.oled.write("Skittles", size=16)
 			Lobsang.oled.write("Launching ball.")
 			Lobsang.oled.refresh(blackout=False)
-			Lobsang.launcher.release_paddle()
-			launch_ball = False
+			Lobsang.launcher.launch_ball()
 			Lobsang.oled.write("Launched ball. Did I score!?")
 			Lobsang.oled.refresh(blackout=False)
+			Lobsang.launcher.reset_paddle()
+			launch_ball = False
 			redraw = True
 		
 		elif open_guide and not opened: # Open guide
@@ -199,10 +199,13 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 except Exception as e:
 	Lobsang.wheels.both(0, ramped=False)
 	Lobsang.launcher.disconnect()
+	Lobsang.head.laser(False)
 	Lobsang.oled.clear_buffer()
 	Lobsang.oled.write("Halting Skittles Challenge.")
 	Lobsang.oled.refresh()
 	print "An error occurred in Skittles Challenge: %s. Halting." %e
 	print "Skittles Challenge: loop ran for %i seconds or %i times, with average time per loop = %fs" %(int(time.time() - start_time), total_loops, (time.time() - start_time) / total_loops)
 	time.sleep(0.5)
+	pygame.quit()
+	Lobsang.quit(screensaver=False)
 	# Exit

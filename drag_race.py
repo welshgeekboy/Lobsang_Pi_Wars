@@ -84,7 +84,7 @@ try: # So except: can stop the robot before script exits.
 				Lobsang.oled.clear_buffer()
 				Lobsang.oled.write("Halting Straight Line Speed Test.")
 				Lobsang.oled.refresh()
-				print "Straight Line Speed Test: Loop ran for %s seconds or %i times, with average time per loop = %fs" %(str(int((time.time() - start_time) * 10) / 10.0), total_loops, (time.time() - start_time) / total_loops)
+				print "Straight Line Speed Test: main loop ran for %s seconds or %i times, with average time per loop of %fs and %s loops per second." %(str(int((current_time - start_time) * 100.0) / 100.0), total_loops, (current_time - start_time) / total_loops, str(int(1 / ((current_time - start_time) / total_loops) * 100.0) / 100.0))
 				clock.tick(2)
 				pygame.quit()
 				Lobsang.quit(screensaver=False)
