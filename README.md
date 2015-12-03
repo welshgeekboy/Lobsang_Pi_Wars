@@ -16,6 +16,7 @@
 		<li>proximity_alert.py- drives up to a wall as close as possible but does not touch.</li>
 		<li>manual_control.py- allows a user to control the robot with W, A, S, D keys.</li>
 		<li>drag_race.py- manual control for the straight line speed test- only slight turning is enabled.</li>
+		<li>skittles_challenge.py- manual control for skittles challenge, using a custom ball-launching appendage.</li>
 	</ul>
 	<ul><h5>Other files:</h5>
 		<li>autorun.py- runs on Pi booting, checks if all testable aspects of the robot are online and if they are then runs piwars_menu.py, else gives a login prompt.</li>
