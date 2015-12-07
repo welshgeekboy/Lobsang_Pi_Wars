@@ -1,5 +1,7 @@
-Wed Nov 25 07:06:28 2015 --> [BEGIN] New log file started. To review old log files, see ./archive/
-Wed Nov 25 07:08:21 2015 --> [ LOG ] Lobsang.begin() called.
-Wed Nov 25 07:08:21 2015 --> [ LOG ] Duino responded to 'OK?' query. Duino Online.
-Wed Nov 25 07:24:40 2015 --> [ LOG ] Lobsang.begin() called.
-Wed Nov 25 07:24:40 2015 --> [ LOG ] Duino responded to 'OK?' query. Duino Online.
+Wed Nov 25 11:22:17 2015 --> [BEGIN] New log file started. To review old log files, see ./archive/
+Wed Nov 25 11:23:08 2015 --> [ LOG ] Lobsang.begin() called.
+Wed Nov 25 11:23:08 2015 --> [ LOG ] Duino responded to 'OK?' query. Duino Online.
+Wed Nov 25 11:24:14 2015 --> [ LOG ] Lobsang.begin() called.
+Wed Nov 25 11:24:14 2015 --> [ LOG ] Duino responded to 'OK?' query. Duino Online.
+Wed Nov 25 11:25:23 2015 --> [ LOG ] Lobsang.begin() called.
+Wed Nov 25 11:25:24 2015 --> [ LOG ] Duino responded to 'OK?' query. Duino Online.

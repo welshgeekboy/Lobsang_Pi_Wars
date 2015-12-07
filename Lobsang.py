@@ -472,7 +472,7 @@ class Appendage():
 		def __init__(self):
 			self.guide_status = "open"
 			serial.write("LAG1300")
-			serial.write("LAP1700")
+			serial.write("LAP2000")
 		
 		def connect(self):
 			serial.write("LAC1") # Tell Duino that the launcher is connected.
@@ -481,19 +481,17 @@ class Appendage():
 			serial.write("LAC0") # Get the Duino to disable launcher outputs.
 
 		def open_guide(self):
-			if self.guide_status == "closed":
-				serial.write("LAG1300")
-				self.guide_status = "open"
+			#if self.guide_status == "closed":
+			serial.write("LAG1300")
+			#self.guide_status = "open"
 		
 		def close_guide(self):
-			if self.guide_status == "open":
-				serial.write("LAG1700")
-				self.guide_status = "closed"
+			#if self.guide_status == "open":
+			serial.write("LAG1080")
+			#self.guide_status = "closed"
 		
 		def release_paddle(self):
 			serial.write("LAP1000")
-			time.sleep(0.4)
-			serial.write("LAP2000")
 		
 		def reset_paddle(self):
 			serial.write("LAP2000")
@@ -502,8 +500,8 @@ class Appendage():
 			self.open_guide()
 			time.sleep(0.1)
 			self.release_paddle()
-			time.sleep(0.5)
-			self.close_guide()
+			#time.sleep(0.5)
+			#self.close_guide()
 
 
 class Msglog():

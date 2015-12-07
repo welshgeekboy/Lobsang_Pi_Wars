@@ -23,9 +23,8 @@ from pygame.locals import *
 Lobsang.oled.write("Starting Line Follower.")
 Lobsang.oled.refresh()
 Lobsang.begin(splashscreen=False)
-Lobsang.wheels.calibrate_speeds(-0.6)
 
-DEBUG = True
+DEBUG = False
 SHOW_MAP = False
 
 if DEBUG: print "Line Follower: Debug is on. Will print program info."
@@ -56,12 +55,6 @@ display = pygame.display.set_mode((1280, 800))
 pygame.display.set_caption("Line Follower Program")
 clock = pygame.time.Clock()
 
-left_two = [-4, 15]
-left_one = [6, 13]
-fwd      = 10
-rght_one = [13, 6]
-rght_two = [15, -4]
-  
 old_time = time.time()
 current_time = time.time()
 
@@ -98,11 +91,11 @@ try: # Put the main loop in a try statement to stop the robot and exit cleanly o
 						Lobsang.duino.enable()
 						# Continue in the last direction of travel or the robot gets confused. 
 						if direction == "forward":
-							Lobsang.wheels.both(fwd)
+							Lobsang.wheels.both(13)
 						elif direction == "left":
-							Lobsang.wheels.both(left_one[0], left_one[1])
+							Lobsang.wheels.both(6, 16)
 						elif direction == "right":
-							Lobsang.wheels.both(rght_one[0], rght_one[1])
+							Lobsang.wheels.both(16, 6)
 					else:
 						Lobsang.duino.disable()
 						Lobsang.oled.clear_buffer()
@@ -129,23 +122,21 @@ try: # Put the main loop in a try statement to stop the robot and exit cleanly o
 				
 				if map == middle: # Line is under centre sensor- go forward.
 					direction = "forward"
-					Lobsang.wheels.both(fwd)
+					Lobsang.wheels.both(13)
 				
 				elif map == left or map == left_90: # Line is under the left sensor (and possibly under middle sensor too)- turn left.
 					direction = "left"
-					Lobsang.wheels.both(left_one[0], left_one[1])
+					Lobsang.wheels.both(6, 16)
 							
 				elif map == right or map == right_90: # Line is under the right sensor (and possibly under middle sensor too)- turn right.
 					direction = "right"
-					Lobsang.wheels.both(rght_one[0], rght_one[1])
+					Lobsang.wheels.both(16, 6)
 				
 				elif map == blank: # Line is under none of the sensors- either between the sensors so they don't see it, or to the left or right of the sensor head.
 					if direction == "left": # If the line is not under the sensor and the robot is turning left, make it turn left more sharply as it is understeering.
-						direction = "extreme left"
-						Lobsang.wheels.both(left_two[0], left_two[1])
+						Lobsang.wheels.both(-4, 16)
 					elif direction == "right": # If the line is not under the sensor and the robot is turning right, make it turn right more sharply as it is understeering.
-						direction = "extreme right"
-						Lobsang.wheels.both(rght_two[0], rght_two[1])
+						Lobsang.wheels.both(16, -4)
 				
 				if DEBUG and direction != old_direction: # If $DEBUG and the direction of the motors have changed, print the time spent in the previous direction, a carriage return, and the current direction.
 					os.system("printf '%fs\r\nMotors: %s for '" %(((time.time() - old_time) * 10000) / 10000.0, direction))

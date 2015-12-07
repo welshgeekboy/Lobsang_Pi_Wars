@@ -37,6 +37,8 @@ left = False
 right = False
 
 launch_ball = False
+paddle_open = False
+
 open_guide = True
 opened = True
 redraw = False
@@ -50,10 +52,12 @@ clock = pygame.time.Clock()
 # Set up Lobsang.
 Lobsang.begin(splashscreen=False)
 Lobsang.wheels.calibrate_speeds(-0.6)
-Lobsang.head.aim(1380, 1430)
-Lobsang.head.laser(True)
+Lobsang.head.aim(1380, 1550)
+#Lobsang.head.laser(True)
 # Tell the Duino that the launcher is connected.
 Lobsang.launcher.connect()
+Lobsang.launcher.open_guide()
+Lobsang.launcher.reset_paddle()
 
 # Print the interface info on the oled.
 Lobsang.oled.clear_buffer()
@@ -84,6 +88,8 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 					right = True
 				elif event.key == K_k:
 					launch_ball = True
+				elif event.key == K_i:
+					launch_ball = False
 				elif event.key == K_o:
 					open_guide = True
 				elif event.key == K_p:
@@ -93,7 +99,7 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 					Lobsang.oled.clear_buffer()
 					Lobsang.oled.write("Skittles", pos=(0, 0), size=16)
 					Lobsang.oled.write("Control with W, A, S, D keys.")
-					Lobsang.oled.write("Control paddle with K, O, P keys.")
+					Lobsang.oled.write("Control paddle with K, I, O, P keys.")
 					Lobsang.oled.write("Press ESC to quit.")
 					Lobsang.oled.refresh(blackout=False)
 					redraw = False
@@ -116,7 +122,7 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 				Lobsang.oled.clear_buffer()
 				Lobsang.oled.write("Halting Skittles Challenge code.") 
 				Lobsang.oled.refresh(blackout=False)
-				print "Skittles Challenge: main loop ran for %s seconds or %i times, with average time per loop of %fs and %s loops per second." %(str(int((current_time - start_time) * 100.0) / 100.0), total_loops, (current_time - start_time) / total_loops, str(int(1 / ((current_time - start_time) / total_loops) * 100.0) / 100.0))
+				print "Skittles Challenge: Main loop ran for %s seconds or %i times, with average time per loop of %fs and %s loops per second." %(str(int((current_time - start_time) * 100.0) / 100.0), total_loops, (current_time - start_time) / total_loops, str(int(1 / ((current_time - start_time) / total_loops) * 100.0) / 100.0))
 				print "Skittles Challenge: Halting."
 				time.sleep(0.5)
 				pygame.quit()
@@ -162,7 +168,7 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 			left_motor_speed = 0
 			right_motor_speed = 0
 		
-		if launch_ball: # Launch ball from ball launcher and deal with guide all in one go.
+		if launch_ball and not paddle_open: # Launch ball from ball launcher and deal with guide all in one go.
 			Lobsang.oled.clear_buffer()
 			Lobsang.oled.write("Skittles", size=16)
 			Lobsang.oled.write("Launching ball.")
@@ -170,9 +176,13 @@ try: # Put the main loop in a try statement to catch errors and stop the robot b
 			Lobsang.launcher.launch_ball()
 			Lobsang.oled.write("Launched ball. Did I score!?")
 			Lobsang.oled.refresh(blackout=False)
-			Lobsang.launcher.reset_paddle()
-			launch_ball = False
+			#Lobsang.launcher.reset_paddle()
+			paddle_open = True
 			redraw = True
+		
+		elif not launch_ball and paddle_open: # Paddle was manually closed. Reset the appendage to launch again.
+			Lobsang.launcher.reset_paddle()
+			paddle_open = False
 		
 		elif open_guide and not opened: # Open guide
 			Lobsang.oled.clear_buffer()

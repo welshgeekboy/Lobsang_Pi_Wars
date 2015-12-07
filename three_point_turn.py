@@ -13,9 +13,12 @@ print "Three Point Turn: Initialising."
 # Import the libraries we need.
 import Lobsang
 import time
-import pygame
-import sys
-from pygame.locals import *
+#import pygame
+#import sys
+#from pygame.locals import *
+
+Lobsang.oled.write("Starting Three Point Turn.")
+Lobsang.oled.refresh()
 
 # The sequence of directions, times and with motor calibration for each motor speed.
 #                          FWD    LFT    FWD    BKD    FWD    LFT    FWD    STP  
@@ -30,13 +33,28 @@ Lobsang.head.laser(True)
 Lobsang.head.aim(1380, 1580)
 time.sleep(4)
 
-# Set up pygame.
+# Set up pygame here?
 # pygame...
 
-for i in range(len(wheels_movement_time)):
-	Lobsang.wheels.calibrate_speeds(wheels_calibration[i])
-	Lobsang.wheels.both(wheels_direction_left[i], wheels_direction_right[i])
-	time.sleep(wheels_movement_time[i])
+Lobsang.oled.clear_buffer()
+Lobsang.oled.write("3PT", size=16)
+Lobsang.oled.write("Running three point turn code...")
+Lobsang.oled.write("No manual control!")
+Lobsang.oled.refresh()
 
-print "Three Point Turn: Halting."
-Lobsang.quit(screensaver=False)
+try:
+	for i in range(len(wheels_movement_time)):
+		Lobsang.wheels.calibrate_speeds(wheels_calibration[i])
+		Lobsang.wheels.both(wheels_direction_left[i], wheels_direction_right[i])
+		time.sleep(wheels_movement_time[i])
+except:
+	Lobsang.wheels.both(0)
+	print "Three Point Turn: Exception occurred."
+finally:
+	print "Three Point Turn: Halting."
+	Lobsang.oled.clear_buffer()
+	Lobsang.oled.write("Halting Three Point Turn.")
+	Lobsang.oled.refresh()
+	time.sleep(0.5)
+	Lobsang.quit(screensaver=False)
+
